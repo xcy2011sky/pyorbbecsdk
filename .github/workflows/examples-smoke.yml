@@ -1,0 +1,35 @@
+name: Examples Smoke
+
+on:
+  pull_request:
+  push:
+    branches: [v2-main]
+
+jobs:
+  examples-compile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile check examples
+        run: python -m compileall -q examples
+
+      - name: Verify import statements in examples
+        run: |
+          python - << 'PY'
+          import glob
+          import os
+          import py_compile
+
+          files = glob.glob("examples/**/*.py", recursive=True)
+          for f in files:
+              if os.path.isfile(f):
+                  py_compile.compile(f, doraise=True)
+          print(f"checked {len(files)} python example files")
+          PY
