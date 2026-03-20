@@ -1,7 +1,9 @@
 import unittest
+import pytest
 from pyorbbecsdk import *
 
 
+@pytest.mark.hardware
 class DeviceTest(unittest.TestCase):
     def setUp(self) -> None:
         self.context = Context()

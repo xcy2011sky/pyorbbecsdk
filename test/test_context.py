@@ -1,4 +1,5 @@
 import unittest
+import pytest
 from pyorbbecsdk import *
 
 
@@ -15,6 +16,7 @@ def on_set_device_changed_callback(disconn_list: DeviceList, conn_list: DeviceLi
     on_device_connected_callback(conn_list)
 
 
+@pytest.mark.hardware
 class ContextTest(unittest.TestCase):
 
     def setUp(self) -> None:
