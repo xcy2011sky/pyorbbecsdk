@@ -1,0 +1,73 @@
+name: PR Gate
+
+on:
+  pull_request:
+  push:
+    branches: [v2-main]
+
+concurrency:
+  group: py-pr-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pybind11==2.12.0 pybind11-global==2.12.0 wheel cmake
+
+      - name: Configure
+        run: cmake -S . -B build -DPYBIND11_PYTHON_VERSION=3.11
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Install package
+        run: pip install .
+
+      - name: Smoke import
+        run: python -c "import pyorbbecsdk; print('import ok')"
+
+      - name: Python examples compile check
+        run: python -m compileall -q examples
+
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pybind11==2.12.0 pybind11-global==2.12.0 wheel cmake
+
+      - name: Configure
+        run: cmake -S . -B build -DPYBIND11_PYTHON_VERSION=3.11
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Install package
+        run: pip install .
+
+      - name: Smoke import
+        run: python -c "import pyorbbecsdk; print('import ok')"
+
+      - name: Python examples compile check
+        run: python -m compileall -q examples
